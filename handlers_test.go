@@ -6,12 +6,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
 const testUUID = "bba39990-c78d-3629-ae83-808c333c6dbc"
-const getSectionsResponse = "[{\"apiUrl\":\"http://localhost:8080/transformers/sections/bba39990-c78d-3629-ae83-808c333c6dbc\"}]\n"
-const getSectionByUUIDResponse = "{\"uuid\":\"bba39990-c78d-3629-ae83-808c333c6dbc\",\"canonicalName\":\"Metals Markets\",\"tmeIdentifier\":\"MTE3-U3ViamVjdHM=\",\"type\":\"Section\"}\n"
+const getSectionsResponse = `[{"apiUrl":"http://localhost:8080/transformers/sections/bba39990-c78d-3629-ae83-808c333c6dbc"}]`
+const getSectionByUUIDResponse = `{"uuid":"bba39990-c78d-3629-ae83-808c333c6dbc","alternativeIdentifiers":{"TME":["MTE3-U3ViamVjdHM="],"uuids":["bba39990-c78d-3629-ae83-808c333c6dbc"]},"prefLabel":"Global Sections","type":"Section"}`
 
 func TestHandlers(t *testing.T) {
 	assert := assert.New(t)
@@ -23,7 +24,7 @@ func TestHandlers(t *testing.T) {
 		contentType  string // Contents of the Content-Type header
 		body         string
 	}{
-		{"Success - get section by uuid", newRequest("GET", fmt.Sprintf("/transformers/sections/%s", testUUID)), &dummyService{found: true, sections: []section{section{UUID: testUUID, CanonicalName: "Metals Markets", TmeIdentifier: "MTE3-U3ViamVjdHM=", Type: "Section"}}}, http.StatusOK, "application/json", getSectionByUUIDResponse},
+		{"Success - get section by uuid", newRequest("GET", fmt.Sprintf("/transformers/sections/%s", testUUID)), &dummyService{found: true, sections: []section{getDummySection(testUUID, "Global Sections", "MTE3-U3ViamVjdHM=")}}, http.StatusOK, "application/json", getSectionByUUIDResponse},
 		{"Not found - get section by uuid", newRequest("GET", fmt.Sprintf("/transformers/sections/%s", testUUID)), &dummyService{found: false, sections: []section{section{}}}, http.StatusNotFound, "application/json", ""},
 		{"Success - get sections", newRequest("GET", "/transformers/sections"), &dummyService{found: true, sections: []section{section{UUID: testUUID}}}, http.StatusOK, "application/json", getSectionsResponse},
 		{"Not found - get sections", newRequest("GET", "/transformers/sections"), &dummyService{found: false, sections: []section{}}, http.StatusNotFound, "application/json", ""},
@@ -33,7 +34,7 @@ func TestHandlers(t *testing.T) {
 		rec := httptest.NewRecorder()
 		router(test.dummyService).ServeHTTP(rec, test.req)
 		assert.True(test.statusCode == rec.Code, fmt.Sprintf("%s: Wrong response code, was %d, should be %d", test.name, rec.Code, test.statusCode))
-		assert.Equal(test.body, rec.Body.String(), fmt.Sprintf("%s: Wrong body", test.name))
+		assert.Equal(strings.TrimSpace(test.body), strings.TrimSpace(rec.Body.String()), fmt.Sprintf("%s: Wrong body", test.name))
 	}
 }
 
@@ -68,4 +69,8 @@ func (s *dummyService) getSections() ([]sectionLink, bool) {
 
 func (s *dummyService) getSectionByUUID(uuid string) (section, bool) {
 	return s.sections[0], s.found
+}
+
+func (s *dummyService) checkConnectivity() error {
+	return nil
 }

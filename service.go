@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/Financial-Times/tme-reader/tmereader"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 )
 
@@ -11,18 +13,20 @@ type httpClient interface {
 type sectionService interface {
 	getSections() ([]sectionLink, bool)
 	getSectionByUUID(uuid string) (section, bool)
+	checkConnectivity() error
 }
 
 type sectionServiceImpl struct {
-	repository repository
-	baseURL    string
-	sectionsMap  map[string]section
-	sectionLinks []sectionLink
+	repository    tmereader.Repository
+	baseURL       string
+	sectionsMap   map[string]section
+	sectionLinks  []sectionLink
+	taxonomyName  string
+	maxTmeRecords int
 }
 
-func newSectionService(repo repository, baseURL string) (sectionService, error) {
-
-	s := &sectionServiceImpl{repository: repo, baseURL: baseURL}
+func newSectionService(repo tmereader.Repository, baseURL string, taxonomyName string, maxTmeRecords int) (sectionService, error) {
+	s := &sectionServiceImpl{repository: repo, baseURL: baseURL, taxonomyName: taxonomyName, maxTmeRecords: maxTmeRecords}
 	err := s.init()
 	if err != nil {
 		return &sectionServiceImpl{}, err
@@ -32,11 +36,23 @@ func newSectionService(repo repository, baseURL string) (sectionService, error) 
 
 func (s *sectionServiceImpl) init() error {
 	s.sectionsMap = make(map[string]section)
-	tax, err := s.repository.getSectionsTaxonomy()
-	if err != nil {
-		return err
+	responseCount := 0
+	log.Printf("Fetching sections from TME\n")
+	for {
+		terms, err := s.repository.GetTmeTermsFromIndex(responseCount)
+		if err != nil {
+			return err
+		}
+
+		if len(terms) < 1 {
+			log.Printf("Finished fetching sections from TME\n")
+			break
+		}
+		s.initSectionsMap(terms)
+		responseCount += s.maxTmeRecords
 	}
-	s.initSectionsMap(tax.Terms)
+	log.Printf("Added %d section links\n", len(s.sectionLinks))
+
 	return nil
 }
 
@@ -52,11 +68,21 @@ func (s *sectionServiceImpl) getSectionByUUID(uuid string) (section, bool) {
 	return section, found
 }
 
-func (s *sectionServiceImpl) initSectionsMap(terms []term) {
-	for _, t := range terms {
-		top := transformSection(t)
+func (s *sectionServiceImpl) checkConnectivity() error {
+	// TODO: Can we just hit an endpoint to check if TME is available? Or do we need to make sure we get genre taxonmies back? Maybe a healthcheck or gtg endpoint?
+	// TODO: Can we use a count from our responses while actually in use to trigger a healthcheck?
+	//	_, err := s.repository.GetTmeTermsFromIndex(1)
+	//	if err != nil {
+	//		return err
+	//	}
+	return nil
+}
+
+func (s *sectionServiceImpl) initSectionsMap(terms []interface{}) {
+	for _, iTerm := range terms {
+		t := iTerm.(term)
+		top := transformSection(t, s.taxonomyName)
 		s.sectionsMap[top.UUID] = top
 		s.sectionLinks = append(s.sectionLinks, sectionLink{APIURL: s.baseURL + top.UUID})
-		s.initSectionsMap(t.Children.Terms)
 	}
 }
