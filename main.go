@@ -73,7 +73,7 @@ func main() {
 		EnvVar: "SLICES",
 	})
 
-	tmeTaxonomyName := "sections"
+	tmeTaxonomyName := "Sections"
 
 	app.Action = func() {
 		client := getResilientClient()
