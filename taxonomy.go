@@ -1,15 +1,11 @@
 package main
 
 type taxonomy struct {
-	Terms []term `xml:"term"`
+	Terms []term `xml:"category"`
 }
 
+//TODO revise fields
 type term struct {
-	CanonicalName string   `xml:"canonicalName"`
-	ID            string   `xml:"id,attr"`
-	Children      children `xml:"children"`
-}
-
-type children struct {
-	Terms []term `xml:"term"`
+	CanonicalName string `xml:"name"`
+	RawID         string `xml:"id"`
 }
