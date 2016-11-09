@@ -7,7 +7,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 )
 
 type sectionsHandler struct {
@@ -78,42 +77,4 @@ func writeJSONResponse(obj interface{}, found bool, writer http.ResponseWriter) 
 func writeJSONError(w http.ResponseWriter, errorMsg string, statusCode int) {
 	w.WriteHeader(statusCode)
 	fmt.Fprintln(w, fmt.Sprintf("{\"message\": \"%s\"}", errorMsg))
-}
-
-func (h *sectionsHandler) getCount(writer http.ResponseWriter, req *http.Request) {
-	count := h.service.getSectionCount()
-	_, err := writer.Write([]byte(strconv.Itoa(count)))
-	if err != nil {
-		log.Warnf("Couldn't write count to HTTP response. count=%d %v\n", count, err)
-		writer.WriteHeader(http.StatusInternalServerError)
-	}
-}
-
-func (h *sectionsHandler) getIds(writer http.ResponseWriter, req *http.Request) {
-	ids := h.service.getSectionIds()
-	writer.Header().Add("Content-Type", "text/plain")
-	if len(ids) == 0 {
-		writer.WriteHeader(http.StatusOK)
-		return
-	}
-	enc := json.NewEncoder(writer)
-	type sectionID struct {
-		ID string `json:"id"`
-	}
-	for _, id := range ids {
-		rID := sectionID{ID: id}
-		err := enc.Encode(rID)
-		if err != nil {
-			log.Warnf("Couldn't encode to HTTP response topic with uuid=%s %v\n", id, err)
-			continue
-		}
-	}
-}
-
-func (h *sectionsHandler) reload(writer http.ResponseWriter, req *http.Request) {
-	err := h.service.reload()
-	if err != nil {
-		log.Warnf("Problem reloading terms from TME: %v", err)
-		writer.WriteHeader(http.StatusInternalServerError)
-	}
 }

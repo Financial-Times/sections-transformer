@@ -14,9 +14,6 @@ type sectionService interface {
 	getSections() ([]sectionLink, bool)
 	getSectionByUUID(uuid string) (section, bool)
 	checkConnectivity() error
-	getSectionCount() int
-	getSectionIds() []string
-	reload() error
 }
 
 type sectionServiceImpl struct {
@@ -88,41 +85,4 @@ func (s *sectionServiceImpl) initSectionsMap(terms []interface{}) {
 		s.sectionsMap[top.UUID] = top
 		s.sectionLinks = append(s.sectionLinks, sectionLink{APIURL: s.baseURL + top.UUID})
 	}
-}
-
-func (s *sectionServiceImpl) getSectionCount() int {
-	return len(s.sectionLinks)
-}
-
-func (s *sectionServiceImpl) getSectionIds() []string {
-	i := 0
-	keys := make([]string, len(s.sectionsMap))
-
-	for k := range s.sectionsMap {
-		keys[i] = k
-		i++
-	}
-	return keys
-}
-
-func (s *sectionServiceImpl) reload() error {
-	s.sectionsMap = make(map[string]section)
-	responseCount := 0
-	log.Println("Fetching sections from TME")
-	for {
-		terms, err := s.repository.GetTmeTermsFromIndex(responseCount)
-		if err != nil {
-			return err
-		}
-
-		if len(terms) < 1 {
-			log.Println("Finished fetching topics from TME")
-			break
-		}
-		s.initSectionsMap(terms)
-		responseCount += s.maxTmeRecords
-	}
-	log.Printf("Added %d section links\n", len(s.sectionLinks))
-
-	return nil
 }
