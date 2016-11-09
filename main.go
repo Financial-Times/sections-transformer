@@ -26,19 +26,19 @@ func main() {
 	app := cli.App("sections-transformer", "A RESTful API for transforming TME Sections to UP json")
 	username := app.String(cli.StringOpt{
 		Name:   "tme-username",
-		Value:  "",
+		Value:  "admin",
 		Desc:   "TME username used for http basic authentication",
 		EnvVar: "TME_USERNAME",
 	})
 	password := app.String(cli.StringOpt{
 		Name:   "tme-password",
-		Value:  "",
+		Value:  "admin",
 		Desc:   "TME password used for http basic authentication",
 		EnvVar: "TME_PASSWORD",
 	})
 	token := app.String(cli.StringOpt{
 		Name:   "token",
-		Value:  "",
+		Value:  "K0GBRYEG9HxCBC3NwUkfU9hVeW51EnMhJ34c1ChaF0yX",
 		Desc:   "Token to be used for accessing TME",
 		EnvVar: "TOKEN",
 	})
@@ -97,6 +97,9 @@ func main() {
 		m.HandleFunc("/__gtg", h.GoodToGo)
 
 		m.HandleFunc("/transformers/sections", h.getSections).Methods("GET")
+		m.HandleFunc("/transformers/sections/__count", h.getCount).Methods("GET")
+		m.HandleFunc("/transformers/sections/__ids", h.getIds).Methods("GET")
+		m.HandleFunc("/transformers/sections/__reload", h.reload).Methods("GET")
 		m.HandleFunc("/transformers/sections/{uuid}", h.getSectionByUUID).Methods("GET")
 
 		http.Handle("/", m)
