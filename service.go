@@ -30,33 +30,11 @@ type sectionServiceImpl struct {
 
 func newSectionService(repo tmereader.Repository, baseURL string, taxonomyName string, maxTmeRecords int) (sectionService, error) {
 	s := &sectionServiceImpl{repository: repo, baseURL: baseURL, taxonomyName: taxonomyName, maxTmeRecords: maxTmeRecords}
-	err := s.init()
+	err := s.reload()
 	if err != nil {
 		return &sectionServiceImpl{}, err
 	}
 	return s, nil
-}
-
-func (s *sectionServiceImpl) init() error {
-	s.sectionsMap = make(map[string]section)
-	responseCount := 0
-	log.Printf("Fetching sections from TME\n")
-	for {
-		terms, err := s.repository.GetTmeTermsFromIndex(responseCount)
-		if err != nil {
-			return err
-		}
-
-		if len(terms) < 1 {
-			log.Printf("Finished fetching sections from TME\n")
-			break
-		}
-		s.initSectionsMap(terms)
-		responseCount += s.maxTmeRecords
-	}
-	log.Printf("Added %d section links\n", len(s.sectionLinks))
-
-	return nil
 }
 
 func (s *sectionServiceImpl) getSections() ([]sectionLink, bool) {

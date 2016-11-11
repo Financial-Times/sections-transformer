@@ -56,7 +56,7 @@ func router(s sectionService) *mux.Router {
 	m.HandleFunc("/transformers/sections", h.getSections).Methods("GET")
 	m.HandleFunc("/transformers/sections/__count", h.getCount).Methods("GET")
 	m.HandleFunc("/transformers/sections/__ids", h.getIds).Methods("GET")
-	m.HandleFunc("/transformers/sections/__reload", h.getIds).Methods("GET")
+	m.HandleFunc("/transformers/sections/__reload", h.reload).Methods("POST")
 	m.HandleFunc("/transformers/sections/{uuid}", h.getSectionByUUID).Methods("GET")
 	return m
 }
