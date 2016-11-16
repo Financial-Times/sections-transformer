@@ -85,6 +85,8 @@ func (s *sectionServiceImpl) getSectionIds() []string {
 
 func (s *sectionServiceImpl) reload() error {
 	s.sectionsMap = make(map[string]section)
+	var links []sectionLink
+	s.sectionLinks = links
 	responseCount := 0
 	log.Println("Fetching sections from TME")
 	for {
