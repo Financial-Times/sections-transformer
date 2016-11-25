@@ -15,7 +15,8 @@ func transformSection(tmeTerm term, taxonomyName string) section {
 		UUID:                   uuid,
 		PrefLabel:              tmeTerm.CanonicalName,
 		AlternativeIdentifiers: alternativeIdentifiers{TME: []string{tmeIdentifier}, Uuids: []string{uuid}},
-		Type: "Section",
+		PrimaryType:            primaryType,
+		TypeHierarchy:          sectionTypes,
 	}
 }
 

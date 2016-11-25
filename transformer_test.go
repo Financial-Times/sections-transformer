@@ -24,7 +24,9 @@ func TestTransform(t *testing.T) {
 					TME:   []string{"TnN0ZWluX0dMX0FGVE1fR0xfMTY0ODM1-U2VjdGlvbnM="},
 					Uuids: []string{"adb4f804-c3b6-3eca-8708-5edeec653a27"},
 				},
-				Type: "Section"}},
+				PrimaryType:   primaryType,
+				TypeHierarchy: sectionTypes,
+			}},
 	}
 
 	for _, test := range tests {
