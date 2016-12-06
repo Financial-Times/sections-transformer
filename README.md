@@ -8,6 +8,7 @@ The service exposes endpoints for getting all the sections and for getting secti
 # Usage
 `go get github.com/Financial-Times/sections-transformer`
 
+```
 Options:
   --tme-username=""                                           TME username used for http basic authentication ($TME_USERNAME)
   --tme-password=""                                           TME password used for http basic authentication ($TME_PASSWORD)
@@ -17,6 +18,7 @@ Options:
   --port=8080                                                 Port to listen on ($PORT)
   --maxRecords=10000                                          Maximum records to be queried to TME ($MAX_RECORDS)
   --slices=10                                                 Number of requests to be executed in parallel to TME ($SLICES)
+```
 
 With Docker:
 
