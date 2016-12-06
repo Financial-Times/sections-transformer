@@ -2,17 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
 )
 
 const testUUID = "bba39990-c78d-3629-ae83-808c333c6dbc"
 const getSectionsResponse = `[{"apiUrl":"http://localhost:8080/transformers/sections/bba39990-c78d-3629-ae83-808c333c6dbc"}]`
-const getSectionByUUIDResponse = `{"uuid":"bba39990-c78d-3629-ae83-808c333c6dbc","alternativeIdentifiers":{"TME":["MTE3-U3ViamVjdHM="],"uuids":["bba39990-c78d-3629-ae83-808c333c6dbc"]},"prefLabel":"Global Sections","type":"Section"}`
+const getSectionByUUIDResponse = `{"uuid":"bba39990-c78d-3629-ae83-808c333c6dbc","alternativeIdentifiers":{"TME":["MTE3-U3ViamVjdHM="],"uuids":["bba39990-c78d-3629-ae83-808c333c6dbc"]},"prefLabel":"Global Sections","type":"Section","types":["Thing","Concept","Classification","Section"]}`
 const getSectionsCountResponse = `1`
 const getSectionsIdsResponse = `{"id":"bba39990-c78d-3629-ae83-808c333c6dbc"}`
 

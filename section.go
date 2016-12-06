@@ -4,7 +4,8 @@ type section struct {
 	UUID                   string                 `json:"uuid"`
 	AlternativeIdentifiers alternativeIdentifiers `json:"alternativeIdentifiers,omitempty"`
 	PrefLabel              string                 `json:"prefLabel"`
-	Type                   string                 `json:"type"`
+	PrimaryType            string                 `json:"type"`
+	TypeHierarchy          []string               `json:"types"`
 }
 
 type alternativeIdentifiers struct {
@@ -15,3 +16,6 @@ type alternativeIdentifiers struct {
 type sectionLink struct {
 	APIURL string `json:"apiUrl"`
 }
+
+var primaryType = "Section"
+var sectionTypes = []string{"Thing", "Concept", "Classification", "Section"}
